@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 
 ## Directory with TESS light curve FITS
 fits_dir = "sector15/Vmag6.0-7.0/"
-## List of FITS files with optional column 'tessmag'
+## List of FITS files with optional column 'tessmag'. Empty lines and lines prepended by # are ignored.
 fits_list = "fits_list.txt"
 
-# TESS magnitude range
+# TESS magnitude range: process stars withing thi range (TESS mag!)
 brightest_mag = -99
 faintest_mag  = 99
 
@@ -28,8 +28,8 @@ flux_column = "PDCSAP_FLUX"
 with open(fits_dir + fits_list, "r") as fits_lc_list_file:
     fits_lc_files = fits_lc_list_file.readlines()
 
-print("Processing " + str(len(fits_lc_files)) + " FITS files")
-print("")
+fits_lc_files = [s.strip() for s in fits_lc_files]
+fits_lc_files = [s for s in fits_lc_files if s != "" and s[0] != "#"]
 
 with open(fits_dir + "TESS_LOG.txt", "w+") as log_file:
     log_file.write("N\tFITS\tTESSMAG\tOBJECT\tCoord\n")
@@ -37,7 +37,7 @@ with open(fits_dir + "TESS_LOG.txt", "w+") as log_file:
     counter = 0
     for fits_list_line in fits_lc_files:
         counter0 += 1
-        fits_params = fits_list_line.strip().split("\t")
+        fits_params = fits_list_line.split("\t")
         name = fits_params[0]
         if len(fits_params) > 1:
             tess_mag_from_list = float(fits_params[1])
@@ -57,7 +57,7 @@ with open(fits_dir + "TESS_LOG.txt", "w+") as log_file:
                         counter += 1
                         log_file.write(str(counter) + "\t" + fits_lc_filename + "\t" + str(tess_mag))
                         print("LC #" + str(counter))
-                        print("FITS: " + name)            
+                        print("FITS: " + name)
                         print("Object: " + obj_name)
                         print("RA Dec (Decimal)    : " + str(ra_obj) + " " + str(dec_obj))
                         print("RA Dec (Sexagesimal): " + coord.to_string(style="hmsdms", sep=" "))
